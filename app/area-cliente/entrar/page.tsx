@@ -4,9 +4,14 @@ import EntrarForm from "@/components/portal/EntrarForm";
 
 export const metadata = { title: "Entrar" };
 
-export default async function EntrarPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+const ERROS: Record<string, string> = {
+  link: "O link de entrada expirou ou já foi usado, ou foi aberto noutro navegador. Peça um novo e abra-o neste navegador.",
+  "sem-acesso": "Este email não tem acesso à área de cliente. Fale connosco para o ativar.",
+};
+
+export default async function EntrarPage({ searchParams }: { searchParams: Promise<{ next?: string; erro?: string }> }) {
   if (await sessaoPortal()) redirect("/area-cliente");
-  const { next } = await searchParams;
+  const { next, erro } = await searchParams;
 
   return (
     <div className="pa-portal pt-entrar">
@@ -30,7 +35,7 @@ export default async function EntrarPage({ searchParams }: { searchParams: Promi
             <li><span>04</span> Veja os valores em aberto e os vencimentos</li>
           </ul>
         </div>
-        <EntrarForm next={next} />
+        <EntrarForm next={next} erroInicial={erro ? ERROS[erro] : undefined} />
       </div>
     </div>
   );

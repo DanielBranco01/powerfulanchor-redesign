@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -19,6 +20,16 @@ const destinoSeguro = (v: FormDataEntryValue | null) => {
   return /^\/area-cliente(\/[\w\-/]*)?$/.test(s) ? s : "/area-cliente";
 };
 
+/** Endereço público do site (para o link do email): PORTAL_SITE_URL, ou a origem do pedido. */
+async function origemSite() {
+  const env = process.env.PORTAL_SITE_URL?.replace(/\/$/, "");
+  if (env) return env;
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  return `${proto}://${host}`;
+}
+
 /** 1.º passo: pede o código de entrada. Não revela se o email tem acesso (a mensagem é sempre a mesma). */
 async function pedirCodigo(fd: FormData): Promise<EntrarState> {
   if (String(fd.get("pa_extra_7f3") ?? "") !== "") return { passo: "codigo", email: "" };
@@ -28,7 +39,12 @@ async function pedirCodigo(fd: FormData): Promise<EntrarState> {
   const email = parsed.data;
 
   const supabase = await portalClient();
-  const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
+  // O email traz um link de entrada (e o código, quando o modelo do email o incluir: exige SMTP próprio no Supabase).
+  const next = destinoSeguro(fd.get("next"));
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: false, emailRedirectTo: `${await origemSite()}/area-cliente/confirmar?next=${encodeURIComponent(next)}` },
+  });
   if (error) {
     if (error.status === 429) {
       return { passo: "codigo", email, aviso: "Já pedimos um código há pouco. Aguarde um minuto antes de pedir outro, ou use o último que recebeu." };

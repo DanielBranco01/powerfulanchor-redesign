@@ -96,7 +96,7 @@ public/
 
 ## Área de cliente (`/area-cliente`)
 
-Os clientes entram com o email (código de 6 algarismos, sem password) e veem só os dados da sua empresa, vindos do ERP:
+Os clientes entram com o email (link ou código por email, sem password) e veem só os dados da sua empresa, vindos do ERP:
 pedidos de orçamento, propostas partilhadas (com aceitação online), encomendas (fase de entrega e seguimento) e valores
 em aberto. Com sessão iniciada, o orçamento do catálogo fica associado à empresa.
 

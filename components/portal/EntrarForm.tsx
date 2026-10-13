@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useActionState, useEffect, useRef } from "react";
 import { entrar, type EntrarState } from "@/app/area-cliente/actions";
 
-export default function EntrarForm({ next }: { next?: string }) {
-  const [state, action, pending] = useActionState<EntrarState, FormData>(entrar, { passo: "email" });
+export default function EntrarForm({ next, erroInicial }: { next?: string; erroInicial?: string }) {
+  const [state, action, pending] = useActionState<EntrarState, FormData>(entrar, { passo: "email", erro: erroInicial });
   const codigoRef = useRef<HTMLInputElement>(null);
   const email = state.email ?? "";
 
@@ -16,14 +16,15 @@ export default function EntrarForm({ next }: { next?: string }) {
   return (
     <div className="form pt-entrar-form">
       <div className="form-head">
-        <span>{state.passo === "email" ? "Entrar · passo 1 de 2" : "Entrar · passo 2 de 2"}</span>
+        <span>{state.passo === "email" ? "Entrar · passo 1 de 2" : "Entrar · veja o seu email"}</span>
         <span>Sem password</span>
       </div>
 
       {state.passo === "email" ? (
         <form action={action} key="email">
           <input type="hidden" name="acao" value="pedir" />
-          <p className="pt-form-intro">Indique o email que a nossa equipa associou à sua empresa. Enviamos-lhe um código de entrada.</p>
+          <input type="hidden" name="next" value={next ?? ""} />
+          <p className="pt-form-intro">Indique o email que a nossa equipa associou à sua empresa. Enviamos-lhe um link de entrada.</p>
           <div className="field">
             <label htmlFor="email">Email</label>
             <input id="email" name="email" type="email" autoComplete="email" required defaultValue={email} placeholder="nome@empresa.pt" />
@@ -38,7 +39,7 @@ export default function EntrarForm({ next }: { next?: string }) {
           />
           {state.erro && <p className="field-error" role="alert">{state.erro}</p>}
           <button className="btn btn-primary" type="submit" disabled={pending}>
-            {pending ? "A enviar…" : "Receber código"} <span className="arrow">→</span>
+            {pending ? "A enviar…" : "Receber link de entrada"} <span className="arrow">→</span>
           </button>
         </form>
       ) : (
@@ -46,8 +47,8 @@ export default function EntrarForm({ next }: { next?: string }) {
           <input type="hidden" name="email" value={email} />
           <input type="hidden" name="next" value={next ?? ""} />
           <p className="pt-form-intro">
-            Se <b>{email || "o email indicado"}</b> tiver acesso, recebe um código de 6 algarismos dentro de instantes. Veja também a pasta de
-            spam.
+            Se <b>{email || "o email indicado"}</b> tiver acesso, recebe um email dentro de instantes (veja também a pasta de spam).{" "}
+            <b>Abra o link neste navegador</b> para entrar. Se o email trouxer um código, pode escrevê-lo aqui.
           </p>
           {state.aviso && <p className="pt-aviso">{state.aviso}</p>}
           <div className="field">
@@ -68,7 +69,7 @@ export default function EntrarForm({ next }: { next?: string }) {
             {pending ? "A verificar…" : "Entrar"} <span className="arrow">→</span>
           </button>
           <button type="submit" name="acao" value="voltar" className="pt-link" formNoValidate>
-            Usar outro email ou pedir novo código
+            Usar outro email ou pedir novo link
           </button>
         </form>
       )}
