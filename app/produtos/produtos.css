@@ -963,6 +963,25 @@
 .pa-catalogue .qok.show {
   display: block;
 }
+.pa-catalogue .qok a,
+.pa-catalogue .qportal a,
+.pa-catalogue .qlegal a {
+  color: var(--pink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.pa-catalogue .qportal {
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--pink);
+  background: rgba(228, 9, 127, 0.06);
+  font-size: 0.88rem;
+}
+.pa-catalogue .qlegal {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: var(--slate, #5d5a62);
+}
 .pa-catalogue .quote-sec {
   margin-top: 52px;
   max-width: 720px;

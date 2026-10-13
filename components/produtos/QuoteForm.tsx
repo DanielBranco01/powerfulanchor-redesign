@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import type { ProductSummary } from "@/lib/catalogue";
 import { useCatalogueData } from "@/lib/catalogue-store";
 import { useBasket } from "../BasketProvider";
-import { sendQuoteRequest } from "@/app/actions";
+import { quemSouPortal, sendQuoteRequest } from "@/app/actions";
 
 const CONTACT_EMAIL = "sales@powerfulanchor.pt";
 
@@ -19,6 +20,19 @@ export default function QuoteForm({
   const { getProduct } = useCatalogueData();
   const [ok, setOk] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [noPortal, setNoPortal] = useState(false);
+  const [eu, setEu] = useState<Awaited<ReturnType<typeof quemSouPortal>>>(null);
+
+  // Com sessão na área de cliente, os dados de contacto vêm preenchidos e o pedido fica associado à empresa.
+  useEffect(() => {
+    let vivo = true;
+    quemSouPortal()
+      .then((r) => vivo && setEu(r))
+      .catch(() => {});
+    return () => {
+      vivo = false;
+    };
+  }, []);
   const [sending, setSending] = useState(false);
   const [invalid, setInvalid] = useState<{ nome: boolean; email: boolean }>({
     nome: false,
@@ -89,6 +103,7 @@ export default function QuoteForm({
         itens,
       });
       gravado = res.saved;
+      setNoPortal(!!res.portal);
     } catch {
       gravado = false;
     }
@@ -107,7 +122,13 @@ export default function QuoteForm({
     setInvalid((v) => ({ ...v, [field]: false }));
 
   return (
-    <form className="qform" onSubmit={onSubmit} noValidate>
+    <form className="qform" onSubmit={onSubmit} noValidate key={eu ? "portal" : "anon"}>
+      {eu && (
+        <p className="qportal">
+          Sessão iniciada como <b>{eu.nome}</b> ({eu.empresa}): o pedido fica na sua{" "}
+          <Link href="/area-cliente/pedidos">área de cliente</Link>.
+        </p>
+      )}
       {mode === "basket" && (
         <ul className="qitems">
           {items.map((b) => {
@@ -132,6 +153,7 @@ export default function QuoteForm({
             name="nome"
             type="text"
             placeholder="O seu nome"
+            defaultValue={eu?.nome}
             className={invalid.nome ? "invalid" : ""}
             onInput={() => clearInvalid("nome")}
             required
@@ -143,6 +165,8 @@ export default function QuoteForm({
             name="email"
             type="email"
             placeholder="email@empresa.pt"
+            defaultValue={eu?.email}
+            readOnly={!!eu}
             className={invalid.email ? "invalid" : ""}
             onInput={() => clearInvalid("email")}
             required
@@ -152,11 +176,11 @@ export default function QuoteForm({
       <div className="qrow">
         <div className="qfield">
           <label>Empresa</label>
-          <input name="empresa" type="text" placeholder="Nome da empresa" />
+          <input name="empresa" type="text" placeholder="Nome da empresa" defaultValue={eu?.empresa} readOnly={!!eu} />
         </div>
         <div className="qfield">
           <label>Telefone</label>
-          <input name="telefone" type="tel" placeholder="Opcional" />
+          <input name="telefone" type="tel" placeholder="Opcional" defaultValue={eu?.telefone} />
         </div>
       </div>
 
@@ -195,8 +219,16 @@ export default function QuoteForm({
         {sending ? "A enviar…" : "Enviar pedido de orçamento →"}
       </button>
 
+      <p className="qlegal">
+        Os seus dados servem apenas para responder ao pedido. Ver a <Link href="/privacidade">Política de Privacidade</Link>.
+      </p>
+
       <div className={`qok${ok ? " show" : ""}`}>
-        {saved ? (
+        {saved && noPortal ? (
+          <>
+            Pedido recebido! Acompanhe-o na <Link href="/area-cliente/pedidos">área de cliente</Link>.
+          </>
+        ) : saved ? (
           <>Pedido recebido! A nossa equipa entrará em contacto consigo brevemente.</>
         ) : (
           <>

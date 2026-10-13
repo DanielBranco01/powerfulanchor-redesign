@@ -131,6 +131,7 @@ export default function Contact() {
               </button>
               <p className="form-note">
                 A sua mensagem é enviada diretamente à nossa equipa. Se não for possível, abriremos o seu cliente de e-mail.
+                Os dados servem apenas para lhe responder (ver a <a href="/privacidade">Política de Privacidade</a>).
               </p>
               <div className={`form-ok${state.success ? " show" : ""}`}>
                 {state.saved

@@ -48,13 +48,16 @@ export default function Footer() {
             <h5>Empresa</h5>
             <ul>
               <li>
-                <a href="#sobre">Quem somos</a>
+                <a href="/#sobre">Quem somos</a>
               </li>
               <li>
-                <a href="#diferenciais">Porquê nós</a>
+                <a href="/#diferenciais">Porquê nós</a>
               </li>
               <li>
-                <a href="#contacto">Contactos</a>
+                <a href="/#contacto">Contactos</a>
+              </li>
+              <li>
+                <Link href="/area-cliente">Área de cliente</Link>
               </li>
             </ul>
           </div>
@@ -79,19 +82,26 @@ export default function Footer() {
             <h5>Marcas</h5>
             <ul>
               <li>
-                <a href="#top">Digitus</a>
+                <a href="/#top">Digitus</a>
               </li>
               <li>
-                <a href="#top">HellermannTyton</a>
+                <a href="/#top">HellermannTyton</a>
               </li>
               <li>
-                <a href="#top">RFS · Brady · Roxtec</a>
+                <a href="/#top">RFS · Brady · Roxtec</a>
               </li>
             </ul>
           </div>
         </div>
         <div className="foot-bottom">
           <span>© {year} Powerful Anchor. Todos os direitos reservados.</span>
+          <span className="foot-legal">
+            <Link href="/privacidade">Privacidade</Link>
+            <Link href="/termos">Termos da área de cliente</Link>
+            <a href="https://www.livroreclamacoes.pt" target="_blank" rel="noopener noreferrer">
+              Livro de Reclamações
+            </a>
+          </span>
           <span>Rua da Quinta da Nora 3, Loja A · Carnaxide — 38°43′N 9°14′W</span>
         </div>
       </div>

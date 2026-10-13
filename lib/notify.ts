@@ -16,14 +16,19 @@ export type NovoLead = {
   assunto?: string;
   mensagem?: string;
   itens?: { ref: string; qty: number }[];
-  origem: "site-contacto" | "site-orcamento";
+  origem: "site-contacto" | "site-orcamento" | "portal";
 };
 
 const ESC: Record<string, string> = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ESC[c]);
 
 export function montarEmail(lead: NovoLead, erpUrl?: string) {
-  const tipo = lead.origem === "site-orcamento" ? "Pedido de orçamento" : "Mensagem de contacto";
+  const tipo =
+    lead.origem === "portal"
+      ? "Pedido na área de cliente"
+      : lead.origem === "site-orcamento"
+        ? "Pedido de orçamento"
+        : "Mensagem de contacto";
   const linhas: [string, string][] = [
     ["Nome", lead.nome],
     ["Email", lead.email],
@@ -71,6 +76,67 @@ export async function notificarNovoLead(lead: NovoLead): Promise<boolean> {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({ from, to: destinatarios, reply_to: lead.email, subject, html, text }),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) console.error("[notify] o Resend recusou o envio, estado HTTP", res.status);
+    return res.ok;
+  } catch (e) {
+    console.error("[notify] falha no envio:", e instanceof Error ? e.name : "erro");
+    return false;
+  }
+}
+
+/** Aviso à equipa quando um cliente aceita uma proposta na área de cliente (mesmas variáveis; desligado sem elas). */
+export async function notificarPropostaAceite(a: {
+  numero: string;
+  titulo: string;
+  empresa: string;
+  contacto: string;
+  email: string;
+  encomendaRef: string | null;
+  referenciaCliente?: string;
+  nota?: string;
+}): Promise<boolean> {
+  const key = process.env.RESEND_API_KEY;
+  const to = process.env.LEAD_NOTIFY_TO;
+  const from = process.env.LEAD_NOTIFY_FROM;
+  if (!key || !to || !from) return false;
+  const destinatarios = to.split(",").map((s) => s.trim()).filter(Boolean);
+  if (!destinatarios.length) return false;
+
+  const erp = process.env.ERP_APP_URL?.replace(/\/$/, "");
+  const venda = a.encomendaRef
+    ? `Venda ${a.encomendaRef} criada automaticamente — confirmar e preparar a entrega.`
+    : "A venda NÃO foi criada automaticamente (ver a tarefa no ERP).";
+  const linhas: [string, string][] = [
+    ["Proposta", `${a.numero} — ${a.titulo}`],
+    ["Cliente", a.empresa],
+    ["Aceite por", `${a.contacto} <${a.email}>`],
+    ["Ref. do cliente", a.referenciaCliente || "—"],
+  ];
+  const html = `<div style="font-family:system-ui,sans-serif;max-width:560px">
+<h2 style="margin:0 0 12px">Proposta aceite na área de cliente</h2>
+<table style="border-collapse:collapse;width:100%">${linhas
+    .map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#666">${k}</td><td><b>${esc(v)}</b></td></tr>`)
+    .join("")}</table>
+${a.nota ? `<p style="white-space:pre-wrap;background:#f7f5f9;padding:12px;border-radius:8px">${esc(a.nota)}</p>` : ""}
+<p>${esc(venda)}</p>
+${erp ? `<p><a href="${esc(erp)}/tarefas">Abrir as tarefas no ERP</a></p>` : ""}
+</div>`;
+  const text = [
+    "Proposta aceite na área de cliente",
+    ...linhas.map(([k, v]) => `${k}: ${v}`),
+    a.nota ? `\nNota do cliente:\n${a.nota}` : "",
+    `\n${venda}`,
+    erp ? `\nTarefas no ERP: ${erp}/tarefas` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to: destinatarios, reply_to: a.email, subject: `Proposta ${a.numero} aceite por ${a.empresa}`, html, text }),
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) console.error("[notify] o Resend recusou o envio, estado HTTP", res.status);
