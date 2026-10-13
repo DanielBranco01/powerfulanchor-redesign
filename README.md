@@ -93,3 +93,19 @@ public/
 - **Estilos isolados**: todo o CSS do catálogo vive sob `.pa-catalogue` em `app/produtos/produtos.css`, evitando colisões com os estilos do site.
 - **Deep-links**: `/produtos?cat=<categoria>` abre uma categoria e `/produtos?produto=<id>` abre uma ficha; a barra de navegação, os cartões de serviço e o rodapé do site já ligam para o catálogo.
 - **Imagens**: os produtos com URL de imagem do fabricante mostram a foto real; sem URL (ou em erro de carregamento) mostram um placeholder com o ícone da categoria.
+
+## Área de cliente (`/area-cliente`)
+
+Os clientes entram com o email (código de 6 algarismos, sem password) e veem só os dados da sua empresa, vindos do ERP:
+pedidos de orçamento, propostas partilhadas (com aceitação online), encomendas (fase de entrega e seguimento) e valores
+em aberto. Com sessão iniciada, o orçamento do catálogo fica associado à empresa.
+
+- **Servidor apenas:** `lib/portal.ts` usa `ERP_SUPABASE_URL` / `ERP_SUPABASE_PUBLISHABLE_KEY` com `@supabase/ssr`
+  (sessão em cookies); `middleware.ts` renova a sessão em `/area-cliente/*`. Nada vai para o navegador.
+- **Dados:** funções `portal_*` do ERP (migração `0020_portal_cliente.sql`), que isolam cada cliente na base de dados.
+- **Acessos:** dados no ERP (Clientes → contactos → «Dar acesso»); não há registo público.
+- **Ações:** `app/area-cliente/actions.ts` (entrar, sair, novo pedido, repetir encomenda, aceitar proposta) e avisos à
+  equipa por email (`lib/notify.ts`, se o Resend estiver configurado).
+- **Páginas legais:** `/privacidade` e `/termos` (dados da empresa em `lib/legal.ts`: preencher denominação e NIPC).
+- **Supabase (painel):** o modelo de email "Magic Link" tem de incluir o código `{{ .Token }}`; para clientes reais é
+  preciso SMTP próprio (Resend com o domínio verificado), porque o envio por omissão só chega à equipa do Supabase.
