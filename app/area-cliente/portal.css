@@ -856,3 +856,45 @@ a.pt-tr:hover {
     animation: none;
   }
 }
+
+/* ---- modo demonstração (/demo) ---- */
+.pt-demo {
+  margin: 0;
+  padding: 10px var(--gutter);
+  background: var(--color-pink);
+  color: var(--color-white);
+  font-size: 0.85rem;
+  text-align: center;
+}
+.pt-demo b {
+  font-family: var(--font-mono);
+  font-variation-settings: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-right: 8px;
+}
+.pt-demo-cta {
+  display: grid;
+  gap: 4px;
+  margin-top: 28px;
+  padding: 16px 18px;
+  border: 1.5px solid var(--color-ink);
+  border-radius: var(--leaf-sm);
+  color: var(--color-ink);
+  text-decoration: none;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.pt-demo-cta span {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-slate);
+}
+.pt-demo-cta:hover {
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+.pt-demo-cta:hover span {
+  color: var(--color-accent);
+}

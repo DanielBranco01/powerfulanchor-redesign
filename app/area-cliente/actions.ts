@@ -1,10 +1,11 @@
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { portalClient, portalConfigurado, sessaoPortal } from "@/lib/portal";
+import { emDemo, portalClient, portalConfigurado, sessaoPortal } from "@/lib/portal";
+import { DEMO_COOKIE } from "@/lib/portal-demo";
 import { notificarNovoLead, notificarPropostaAceite } from "@/lib/notify";
 
 export type EntrarState = {
@@ -85,6 +86,10 @@ export async function entrar(_prev: EntrarState, fd: FormData): Promise<EntrarSt
 }
 
 export async function sair() {
+  if (await emDemo()) {
+    (await cookies()).delete(DEMO_COOKIE);
+    redirect("/area-cliente/entrar");
+  }
   if (portalConfigurado()) {
     const supabase = await portalClient();
     await supabase.auth.signOut();
@@ -111,6 +116,8 @@ export async function novoPedido(_prev: AcaoState, fd: FormData): Promise<AcaoSt
   const parsed = pedidoSchema.safeParse({ assunto: fd.get("assunto") ?? undefined, mensagem: fd.get("mensagem") });
   if (!parsed.success) return { erro: parsed.error.issues[0]?.message ?? "Verifique os dados." };
   const { assunto, mensagem } = parsed.data;
+  // Demonstração: não grava nada no ERP nem envia avisos.
+  if (await emDemo()) redirect("/area-cliente/pedidos?enviado=1");
 
   const supabase = await portalClient();
   const { error } = await supabase.rpc("portal_pedir_orcamento", {
@@ -136,6 +143,7 @@ export async function repetirEncomenda(fd: FormData) {
   const sessao = await sessaoPortal();
   if (!sessao) redirect("/area-cliente/entrar");
   const id = String(fd.get("id") ?? "");
+  if (await emDemo()) redirect("/area-cliente/pedidos?enviado=1");
   const supabase = await portalClient();
   const { error } = await supabase.rpc("portal_repetir_encomenda", { p_id: id, p_mensagem: null });
   if (error) redirect(`/area-cliente/encomendas/${encodeURIComponent(id)}?erro=1`);
@@ -169,6 +177,7 @@ export async function aceitarProposta(_prev: AcaoState, fd: FormData): Promise<A
   });
   if (!parsed.success) return { erro: parsed.error.issues[0]?.message ?? "Verifique os dados." };
   const { id, referencia, nota } = parsed.data;
+  if (await emDemo()) redirect(`/area-cliente/propostas/${id}?aceite=1`);
 
   const supabase = await portalClient();
   const { data: prop } = await supabase.rpc("portal_proposta", { p_id: id });

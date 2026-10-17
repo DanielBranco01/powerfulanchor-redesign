@@ -37,7 +37,8 @@ Sem alterações: `Nav`, `ProductsMegaMenu`, `BasketProvider`, `lib/*` (já incl
 
 ## Estado e cuidados
 
-- **Só local** (porta 3002 no `launch.json` da pasta-mãe). **Não tem Git** — qualquer alteração aqui não tem histórico.
+- Porta 3002 no `launch.json` da pasta-mãe. Tem Git local desde 13/10/2026 (área de cliente); publicação: ver o `README.md` da pasta `Website`.
+- Área de cliente com **modo demonstração** em `/demo` (dados fictícios, sem login) — para mostrar sem uma conta real.
 - O README diz "sem `.env.local`", mas existe um `.env.local` nesta pasta. Se tiver as chaves do ERP, **os formulários do
   redesign criam leads reais no ERP** — confirmar antes de testar o formulário de contacto.
 - O README herdado ainda menciona `NodeVisual.tsx` e as fontes antigas nas notas de implementação.

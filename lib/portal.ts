@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { DEMO_COOKIE, DEMO_SESSAO, lerDemo } from "./portal-demo";
 
 /**
  * Área de cliente: sessão Supabase Auth do projeto do ERP, guardada em cookies (httpOnly via @supabase/ssr).
@@ -13,6 +14,9 @@ const URL = process.env.ERP_SUPABASE_URL;
 const KEY = process.env.ERP_SUPABASE_PUBLISHABLE_KEY;
 
 export const portalConfigurado = () => Boolean(URL && KEY);
+
+/** Modo demonstração (cookie posto por /area-cliente/demo): dados fictícios, sem ERP. Ver lib/portal-demo.ts. */
+export const emDemo = cache(async () => (await cookies()).get(DEMO_COOKIE)?.value === "1");
 
 export async function portalClient() {
   if (!URL || !KEY) throw new Error("ERP_SUPABASE_URL / ERP_SUPABASE_PUBLISHABLE_KEY em falta.");
@@ -38,6 +42,7 @@ export type Sessao = {
 
 /** Sessão do portal (ou null). Em cache por pedido: o layout e as páginas partilham a mesma leitura. */
 export const sessaoPortal = cache(async (): Promise<Sessao | null> => {
+  if (await emDemo()) return DEMO_SESSAO;
   if (!portalConfigurado()) return null;
   const supabase = await portalClient();
   const { data: auth } = await supabase.auth.getUser();
@@ -53,6 +58,7 @@ export const sessaoPortal = cache(async (): Promise<Sessao | null> => {
 /** Chama uma função portal_* de leitura. Devolve null se falhar (a página mostra o estado vazio/erro). */
 export async function lerPortal<T>(fn: string, args?: Record<string, unknown>): Promise<T | null> {
   // O layout e a página correm em paralelo: sem sessão, a página não chega a pedir dados (o layout redireciona).
+  if (await emDemo()) return lerDemo(fn, args) as T;
   if (!(await sessaoPortal())) return null;
   const supabase = await portalClient();
   const { data, error } = await supabase.rpc(fn, args);

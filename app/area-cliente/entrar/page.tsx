@@ -34,6 +34,11 @@ export default async function EntrarPage({ searchParams }: { searchParams: Promi
             <li><span>03</span> Siga a preparação e a entrega das encomendas</li>
             <li><span>04</span> Veja os valores em aberto e os vencimentos</li>
           </ul>
+          {/* <a> e não <Link>: o destino é uma rota que grava um cookie, não deve ser pré-carregada. */}
+          <a href="/area-cliente/demo" className="pt-demo-cta">
+            <span>Ainda não é cliente?</span>
+            <b>Ver a área de cliente com dados de exemplo →</b>
+          </a>
         </div>
         <EntrarForm next={next} erroInicial={erro ? ERROS[erro] : undefined} />
       </div>

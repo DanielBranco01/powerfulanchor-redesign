@@ -1,14 +1,20 @@
 import { redirect } from "next/navigation";
-import { sessaoPortal } from "@/lib/portal";
+import { emDemo, sessaoPortal } from "@/lib/portal";
 import PortalNav from "@/components/portal/PortalNav";
 import { sair } from "../actions";
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const sessao = await sessaoPortal();
   if (!sessao) redirect("/area-cliente/entrar");
+  const demo = await emDemo();
 
   return (
     <div className="pa-portal">
+      {demo && (
+        <p className="pt-demo" role="status">
+          <b>Demonstração</b> Empresa, pedidos e valores fictícios. Nada do que fizer aqui é enviado à Powerful Anchor.
+        </p>
+      )}
       <div className="pt-band">
         <div className="wrap pt-band-inner">
           <div className="pt-who">

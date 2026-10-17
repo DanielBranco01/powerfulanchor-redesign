@@ -109,3 +109,5 @@ em aberto. Com sessão iniciada, o orçamento do catálogo fica associado à emp
 - **Páginas legais:** `/privacidade` e `/termos` (dados da empresa em `lib/legal.ts`: preencher denominação e NIPC).
 - **Supabase (painel):** o modelo de email "Magic Link" tem de incluir o código `{{ .Token }}`; para clientes reais é
   preciso SMTP próprio (Resend com o domínio verificado), porque o envio por omissão só chega à equipa do Supabase.
+- **Demonstração:** `/demo` (ou o botão no ecrã de entrada) abre a área com uma empresa fictícia, sem login e sem ERP
+  (`lib/portal-demo.ts`, cookie `pa_demo` de 8 h). As ações não gravam nada; "Sair" termina a demonstração.

@@ -50,7 +50,7 @@ export default async function PropostaPage({ params, searchParams }: { params: P
         Preços em euros, sem IVA. Prazos de entrega sujeitos a confirmação de stock. Esta proposta não é um documento de faturação.
       </p>
 
-      {p.estado === "aguarda_resposta" && <AceitarForm id={p.id} numero={p.numero} total={eur(p.total)} />}
+      {p.estado === "aguarda_resposta" && !sp.aceite && <AceitarForm id={p.id} numero={p.numero} total={eur(p.total)} />}
       {p.estado === "expirada" && (
         <p className="pt-aviso">
           Esta proposta expirou. <Link href="/area-cliente/pedidos/novo">Peça-nos uma proposta atualizada</Link>.
