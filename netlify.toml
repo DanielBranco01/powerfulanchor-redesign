@@ -1,0 +1,8 @@
+# Build no Netlify (o projeto powerfulanchor-redesign não tem definições de build no painel).
+# O runtime de Next.js do Netlify é instalado automaticamente quando o publish é ".next".
+[build]
+  command = "pnpm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
