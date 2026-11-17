@@ -45,6 +45,14 @@ Em `localhost` o cookie de sessão é partilhado entre portas: entrar como clien
 `ERP_APP_URL`, `PORTAL_SITE_URL`, **`SITE_URL`** (domínio público, para o sitemap e os endereços canónicos) e `PORTAL_DEMO`.
 O `.env.local` desta cópia aponta para o **ERP de produção**: cuidado ao testar formulários.
 
+## Publicação (17/11/2026)
+A loja **não criou projetos novos**: foi para o repositório e para o site de teste que já existiam (`powerfulanchor-redesign`).
+- **GitHub:** `DanielBranco01/powerfulanchor-redesign`, ramo `main` (1 commit por cima do histórico, `c6bcc81` → `99af470`).
+- **Ponto de regresso:** etiqueta **`pre-loja-v1`** (o redesign + área de cliente tal como estavam, `c6bcc81`). O site de produção antigo (`powerfulanchor`) **não foi tocado**.
+- **Netlify:** site `powerfulanchor-redesign` (deploy por upload; enviar para o GitHub não publica). Antes de publicar é preciso definir as variáveis no Netlify (o site não tinha nenhuma): `ERP_SUPABASE_URL`, `ERP_SUPABASE_PUBLISHABLE_KEY` (os mesmos valores públicos do ERP), `SITE_URL` e `PORTAL_SITE_URL` (`https://powerfulanchor-redesign.netlify.app` até haver domínio). Sem elas o site usa o catálogo de reserva e a área de cliente fica indisponível.
+- **Supabase:** em *Authentication → URL Configuration → Redirect URLs* acrescentar `https://powerfulanchor-redesign.netlify.app/**`; sem isso o link de entrada vai para o ERP.
+- Esta pasta (`Website/powerful-anchor-loja`) é agora o clone de trabalho do repositório; `powerful-anchor-redesign` fica como arquivo.
+
 ## Estado
 - `npm run build` e `tsc` passam. Não há testes automáticos nesta pasta; verificada no navegador, incluindo 375 px sem scroll lateral nas páginas do catálogo e da área de cliente.
 - Pendentes: domínio e emails (Resend), deploy, `SITE_URL` e URLs de regresso no Supabase.
