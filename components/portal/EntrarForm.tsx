@@ -75,7 +75,7 @@ export default function EntrarForm({ next, erroInicial }: { next?: string; erroI
       )}
 
       <p className="form-note pt-form-legal">
-        Ainda não tem acesso? <a href="/#contacto">Fale connosco</a>. Ao entrar, aceita os <Link href="/termos">Termos da área de cliente</Link> e
+        O acesso é por convite da nossa equipa. Ainda não o tem? <a href="mailto:sales@powerfulanchor.pt?subject=Pedido%20de%20acesso%20%C3%A0%20%C3%A1rea%20de%20cliente">Peça-o por email</a> ou use o <a href="/#contacto">formulário de contacto</a>. Ao entrar, aceita os <Link href="/termos">Termos da área de cliente</Link> e
         a <Link href="/privacidade">Política de Privacidade</Link>. Usamos apenas um cookie essencial para manter a sessão.
       </p>
     </div>

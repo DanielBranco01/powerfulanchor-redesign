@@ -13,7 +13,7 @@ export default async function PropostasPage() {
       {!propostas ? (
         <ErroLeitura />
       ) : propostas.length === 0 ? (
-        <Vazio titulo="Ainda não há propostas.">Quando respondermos a um pedido, a proposta aparece aqui e pode aceitá-la online.</Vazio>
+        <Vazio titulo="Ainda não há propostas.">Quando respondermos a um pedido, a proposta aparece aqui e pode aceitá-la online. Consulte esta página ou contacte-nos para saber em que ponto está o seu pedido.</Vazio>
       ) : (
         <div className="pt-table" role="table" aria-label="Propostas">
           <div className="pt-tr pt-th" role="row">

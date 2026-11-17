@@ -4,6 +4,7 @@ import { lerPortal, type Encomenda, type EstadoEncomenda } from "@/lib/portal";
 import { ESTADO_ENCOMENDA, Estado, PageTitle, Voltar, data, eur } from "@/components/portal/ui";
 import { LinhasTabela } from "@/components/portal/LinhasTabela";
 import ImprimirBotao from "@/components/portal/ImprimirBotao";
+import MensagemForm from "@/components/portal/MensagemForm";
 import { repetirEncomenda } from "../../../actions";
 
 export const metadata = { title: "Encomenda" };
@@ -85,6 +86,14 @@ export default async function EncomendaPage({ params, searchParams }: { params: 
           <div><span>Vencimento</span><b>{data(e.conta.data_vencimento)}</b></div>
         </div>
       )}
+      <MensagemForm
+        tipo="problema_encomenda"
+        refId={e.id}
+        voltar={`/area-cliente/encomendas/${e.id}`}
+        titulo="Reportar um problema nesta encomenda"
+        placeholder="Ex.: falta um artigo, chegou danificado, morada incorreta…"
+        botao="Enviar à equipa"
+      />
       <p className="pt-muted pt-nota">Valores sem IVA. A fatura é enviada à parte; esta página não é um documento de faturação.</p>
     </>
   );

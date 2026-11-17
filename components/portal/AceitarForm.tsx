@@ -35,7 +35,7 @@ export default function AceitarForm({ id, numero, total }: { id: string; numero:
         <button className="btn btn-primary" type="submit" disabled={pending}>
           {pending ? "A registar…" : "Aceitar e encomendar"} <span className="arrow">→</span>
         </button>
-        <p className="form-note">Tem dúvidas ou quer alterar algo? Responda ao email da proposta ou ligue +351 211 914 559.</p>
+        <p className="form-note">Tem dúvidas ou quer alterar algo antes de aceitar? Contacte-nos: <a href="mailto:sales@powerfulanchor.pt">sales@powerfulanchor.pt</a> · +351 211 914 559.</p>
       </form>
     </div>
   );

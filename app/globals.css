@@ -34,7 +34,7 @@
 :root {
   --maxw: 1240px;
   --gutter: clamp(16px, 4vw, 40px);
-  --nav-h: 72px;
+  --nav-h: 96px;
   --leaf-sm: 0 12px 0 12px;
   --leaf: 0 22px 0 22px;
   --leaf-lg: 0 56px 0 56px;
@@ -242,16 +242,17 @@ header.nav.scrolled {
   align-items: center;
 }
 .logo .brand-logo {
-  width: 62px;
-  height: 42px;
+  width: 96px;
+  height: 64px;
 }
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 26px;
 }
 .nav-links a {
-  font-size: 0.92rem;
+  white-space: nowrap;
+  font-size: 1.04rem;
   font-weight: 550;
   color: var(--color-ink);
   position: relative;
@@ -282,8 +283,8 @@ header.nav.scrolled {
   gap: 12px;
 }
 .nav-cta .btn {
-  padding: 11px 18px;
-  font-size: 0.9rem;
+  padding: 14px 22px;
+  font-size: 1rem;
 }
 
 /* ===== Products mega menu ===== */
@@ -294,7 +295,7 @@ header.nav.scrolled {
 }
 .mega-panel {
   position: absolute;
-  top: calc(100% + 25px);
+  top: calc(100% + (var(--nav-h) - 24px) / 2);
   left: -24px;
   width: min(680px, 88vw);
   background: var(--color-white);
@@ -1480,12 +1481,13 @@ footer {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 42px;
-  padding: 0 14px;
+  height: 48px;
+  padding: 0 16px;
+  white-space: nowrap;
   border: 1.5px solid var(--color-ink);
   border-radius: var(--leaf-sm);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1493,8 +1495,8 @@ footer {
   transition: background 0.2s ease, color 0.2s ease;
 }
 .nav-account svg {
-  width: 17px;
-  height: 17px;
+  width: 19px;
+  height: 19px;
   flex: none;
 }
 .nav-account:hover,
@@ -1502,26 +1504,25 @@ footer {
   background: var(--color-ink);
   color: var(--color-paper);
 }
-@media (max-width: 1080px) {
+@media (max-width: 1180px) {
   .nav-cta {
     margin-left: auto;
     margin-right: -8px;
   }
 }
-@media (max-width: 1240px) {
-  .nav-account {
-    width: 42px;
-    padding: 0;
-    justify-content: center;
-  }
-  .nav-account-lbl {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
+/* Só o ícone em todas as larguras (o texto fica para leitores de ecrã e no tooltip). */
+.nav-account {
+  width: 48px;
+  padding: 0;
+  justify-content: center;
+}
+.nav-account-lbl {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 /* ===== Páginas legais ===== */
@@ -1621,7 +1622,8 @@ footer {
 }
 
 /* ===== Responsive ===== */
-@media (max-width: 1080px) {
+/* Menu hambúrguer abaixo de 1180px: o cabeçalho maior (logótipo 96px, links 1.04rem) já não cabe numa linha. */
+@media (max-width: 1180px) {
   .nav-links,
   .nav-cta .btn {
     display: none;
@@ -1659,6 +1661,8 @@ footer {
   .nav-links.open a::after {
     display: none;
   }
+}
+@media (max-width: 1080px) {
   .panel-face {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -1737,6 +1741,13 @@ footer {
   }
 }
 @media (max-width: 640px) {
+  :root {
+    --nav-h: 80px;
+  }
+  .logo .brand-logo {
+    width: 78px;
+    height: 52px;
+  }
   .hero-meta span:last-child {
     display: none;
   }

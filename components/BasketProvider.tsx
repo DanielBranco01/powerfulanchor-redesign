@@ -10,12 +10,14 @@ import {
   useState,
 } from "react";
 
-export type BasketItem = { id: string; qty: number };
+/** O artigo leva consigo o que o orçamento mostra (nome, referência…), para não ser preciso descarregar o catálogo. */
+export type BasketItem = { id: string; qty: number; name: string; ref: string; cat: string; img: string | null };
+export type BasketAdd = Omit<BasketItem, "qty">;
 
 type BasketContextValue = {
   items: BasketItem[];
   count: number;
-  add: (id: string) => void;
+  add: (item: BasketAdd) => void;
   setQty: (id: string, delta: number) => void;
   remove: (id: string) => void;
   clear: () => void;
@@ -48,11 +50,11 @@ export default function BasketProvider({ children }: { children: React.ReactNode
   const [toastShow, setToastShow] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const add = useCallback((id: string) => {
+  const add = useCallback((item: BasketAdd) => {
     setItems((prev) => {
-      const it = prev.find((b) => b.id === id);
-      if (it) return prev.map((b) => (b.id === id ? { ...b, qty: b.qty + 1 } : b));
-      return [...prev, { id, qty: 1 }];
+      const it = prev.find((b) => b.id === item.id);
+      if (it) return prev.map((b) => (b.id === item.id ? { ...b, qty: b.qty + 1 } : b));
+      return [...prev, { ...item, qty: 1 }];
     });
   }, []);
 
@@ -94,8 +96,8 @@ export default function BasketProvider({ children }: { children: React.ReactNode
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed: BasketItem[] = JSON.parse(saved);
-        // artigos que entretanto saíram do catálogo são ignorados ao mostrar o orçamento (BasketDrawer, QuoteForm)
-        if (Array.isArray(parsed)) setItems(parsed.filter((b) => typeof b?.id === "string" && b.qty >= 1));
+        // itens de versões antigas do cesto (sem nome) são descartados
+        if (Array.isArray(parsed)) setItems(parsed.filter((b) => typeof b?.id === "string" && typeof b?.name === "string" && b.qty >= 1));
       }
     } catch {
       /* ignore */

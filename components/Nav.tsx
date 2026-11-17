@@ -89,6 +89,7 @@ export default function Nav() {
             href="/area-cliente"
             className={`nav-account${pathname?.startsWith("/area-cliente") ? " active" : ""}`}
             aria-label="Área de cliente"
+            title="Área de cliente"
             onClick={() => setOpen(false)}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

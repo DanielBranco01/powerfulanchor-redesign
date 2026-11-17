@@ -3,6 +3,7 @@ import { Archivo, IBM_Plex_Mono } from "next/font/google";
 import BasketProvider from "@/components/BasketProvider";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 // Archivo carries a width axis: body text at 100, display headlines pushed to
@@ -20,6 +21,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Powerful Anchor — Soluções para redes de comunicações",
   description:
     "Distribuição e comercialização de produtos para redes de comunicações: Redes de Dados, Áudio e Vídeo e Sistemas de RF. Dê POWER ao seu negócio.",

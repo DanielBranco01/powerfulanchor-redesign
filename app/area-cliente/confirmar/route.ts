@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { portalClient } from "@/lib/portal";
+import { destinoSeguro } from "@/lib/portal-destino";
 
 /**
  * Destino do link de entrada enviado por email. O Supabase valida o link e reencaminha para aqui com ?code=
@@ -9,8 +10,7 @@ import { portalClient } from "@/lib/portal";
 export async function GET(request: NextRequest) {
   const url = request.nextUrl;
   const entrar = (erro: string) => NextResponse.redirect(new URL(`/area-cliente/entrar?erro=${erro}`, url.origin));
-  const nextParam = url.searchParams.get("next") ?? "";
-  const next = /^\/area-cliente(\/[\w\-/]*)?$/.test(nextParam) ? nextParam : "/area-cliente";
+  const next = destinoSeguro(url.searchParams.get("next"));
 
   if (url.searchParams.get("error")) return entrar("link");
 

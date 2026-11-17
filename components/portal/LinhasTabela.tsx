@@ -14,7 +14,7 @@ export function LinhasTabela({ linhas, total }: { linhas: Linha[]; total: number
       {linhas.map((l, i) => (
         <div className="pt-tr" role="row" key={`${l.ref ?? l.nome}-${i}`}>
           <span role="cell">
-            {l.slug ? <Link href={`/produtos?produto=${encodeURIComponent(l.slug)}`}><b>{l.nome}</b></Link> : <b>{l.nome}</b>}
+            {l.slug ? <Link href={`/produtos/todos/${encodeURIComponent(l.slug)}`}><b>{l.nome}</b></Link> : <b>{l.nome}</b>}
             {l.ref && <span className="pt-ref-sm">{l.ref}</span>}
             {l.descricao && <small className="pt-muted"> {l.descricao}</small>}
           </span>

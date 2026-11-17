@@ -1,15 +1,12 @@
 "use client";
 
 import { catIcon } from "@/lib/catalogue";
-import { useCatalogueData } from "@/lib/catalogue-store";
 import { useBasket } from "../BasketProvider";
 import SvgIcon from "./SvgIcon";
-import StockBadge from "./StockBadge";
 
 export default function BasketDrawer() {
   const { items, count, drawerOpen, closeDrawer, setQty, remove, clear, openBasketQuote } =
     useBasket();
-  const { getProduct } = useCatalogueData();
 
   return (
     <>
@@ -54,9 +51,8 @@ export default function BasketDrawer() {
               </p>
             </div>
           ) : (
-            items.map((b) => {
-              const p = getProduct(b.id);
-              if (!p) return null;
+            items.map((p) => {
+              const b = p;
               return (
                 <div className="bitem" key={b.id}>
                   <div className="bthumb">
@@ -70,9 +66,6 @@ export default function BasketDrawer() {
                   <div className="binfo">
                     <div className="bname">{p.name}</div>
                     <div className="bref">Ref. {p.ref}</div>
-                    <div className="bstock">
-                      <StockBadge stock={p.stock} />
-                    </div>
                     <div className="bqty">
                       <button onClick={() => setQty(b.id, -1)} aria-label="menos">
                         −

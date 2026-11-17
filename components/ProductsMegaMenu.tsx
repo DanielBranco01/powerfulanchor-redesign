@@ -45,7 +45,7 @@ export default function ProductsMegaMenu({
             {NAV_CATEGORIES.map((c) => (
               <Link
                 key={c.slug}
-                href={`/produtos?cat=${encodeURIComponent(c.key)}`}
+                href={`/produtos/${c.slug}`}
                 className={`mega-cat-item${c.slug === hoverCat ? " active" : ""}`}
                 onMouseEnter={() => setHoverCat(c.slug)}
                 onFocus={() => setHoverCat(c.slug)}
@@ -65,7 +65,7 @@ export default function ProductsMegaMenu({
               <div className="mega-subcats-head">
                 <span>{cat.key}</span>
                 <Link
-                  href={`/produtos?cat=${encodeURIComponent(cat.key)}&view=catalog`}
+                  href={`/produtos/${cat.slug}`}
                   onClick={() => {
                     setOpen(false);
                     onNavigate();
@@ -78,7 +78,7 @@ export default function ProductsMegaMenu({
                 {cat.subcats.map((s) => (
                   <Link
                     key={s}
-                    href={`/produtos?cat=${encodeURIComponent(cat.key)}&sub=${encodeURIComponent(s)}`}
+                    href={`/produtos/${cat.slug}?sub=${encodeURIComponent(s)}`}
                     onClick={() => {
                       setOpen(false);
                       onNavigate();
@@ -94,7 +94,7 @@ export default function ProductsMegaMenu({
 
         <div className="mega-footer">
           <Link
-            href="/produtos?cat=all"
+            href="/produtos/todos"
             onClick={() => {
               setOpen(false);
               onNavigate();

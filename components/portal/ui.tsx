@@ -30,6 +30,7 @@ export const ESTADO_PROPOSTA: Record<EstadoProposta, [string, Tom]> = {
   adjudicada: ["Adjudicada", "feito"],
   expirada: ["Expirada", "neutro"],
   encerrada: ["Encerrada", "neutro"],
+  recusada: ["Recusada", "neutro"],
 };
 
 export const ESTADO_ENCOMENDA: Record<EstadoEncomenda, [string, Tom]> = {

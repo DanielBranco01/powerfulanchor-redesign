@@ -6,7 +6,9 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { emDemo, portalClient, portalConfigurado, sessaoPortal } from "@/lib/portal";
 import { DEMO_COOKIE } from "@/lib/portal-demo";
-import { notificarNovoLead, notificarPropostaAceite } from "@/lib/notify";
+import { destinoSeguro } from "@/lib/portal-destino";
+import { MOTIVOS_RECUSA } from "@/lib/portal-recusa";
+import { confirmarEncomendaAoCliente, notificarNovoLead, notificarPropostaAceite, notificarPropostaRecusada } from "@/lib/notify";
 
 export type EntrarState = {
   passo: "email" | "codigo";
@@ -16,10 +18,6 @@ export type EntrarState = {
 };
 
 const emailSchema = z.string().trim().toLowerCase().email().max(200);
-const destinoSeguro = (v: FormDataEntryValue | null) => {
-  const s = String(v ?? "");
-  return /^\/area-cliente(\/[\w\-/]*)?$/.test(s) ? s : "/area-cliente";
-};
 
 /** Endereço público do site (para o link do email): PORTAL_SITE_URL, ou a origem do pedido. */
 async function origemSite() {
@@ -101,7 +99,7 @@ export async function sair() {
 export type AcaoState = { erro?: string };
 
 const erroAmigavel = (msg: string | undefined) =>
-  msg && /Sem acesso|não encontrad|já não pode|expirou|Descreva|Demasiados|inválid/i.test(msg)
+  msg && /Sem acesso|não encontrad|já não pode|expirou|Descreva|Escreva|Indique|Demasiados|inválid/i.test(msg)
     ? msg
     : "Não foi possível concluir o pedido. Tente novamente ou contacte-nos.";
 
@@ -199,6 +197,95 @@ export async function aceitarProposta(_prev: AcaoState, fd: FormData): Promise<A
     referenciaCliente: referencia,
     nota,
   });
+  await confirmarEncomendaAoCliente({
+    para: sessao.contacto.email,
+    numeroProposta: p?.numero ?? "",
+    titulo: p?.titulo ?? "",
+    encomendaRef: r?.encomenda_ref ?? null,
+    propostaId: id,
+  });
   revalidatePath("/area-cliente", "layout");
   redirect(`/area-cliente/propostas/${id}?aceite=1`);
+}
+
+const recusarSchema = z
+  .object({
+    id: z.string().uuid(),
+    motivo: z.enum(MOTIVOS_RECUSA, { message: "Escolha o motivo." }),
+    detalhe: z.string().trim().max(400).optional(),
+  })
+  .refine((v) => v.motivo !== "Outro motivo" || !!v.detalhe, { message: "Conte-nos o motivo.", path: ["detalhe"] });
+
+export async function recusarProposta(_prev: AcaoState, fd: FormData): Promise<AcaoState> {
+  const sessao = await sessaoPortal();
+  if (!sessao) redirect("/area-cliente/entrar");
+  const parsed = recusarSchema.safeParse({
+    id: fd.get("id"),
+    motivo: fd.get("motivo") ?? undefined,
+    detalhe: fd.get("detalhe") ?? undefined,
+  });
+  if (!parsed.success) return { erro: parsed.error.issues[0]?.message ?? "Verifique os dados." };
+  const { id, motivo, detalhe } = parsed.data;
+  const texto = motivo === "Outro motivo" ? detalhe! : detalhe ? `${motivo} — ${detalhe}` : motivo;
+  // Demonstração: não grava nada no ERP nem envia avisos.
+  if (await emDemo()) redirect(`/area-cliente/propostas/${id}?recusada=1`);
+
+  const supabase = await portalClient();
+  const { data: prop } = await supabase.rpc("portal_proposta", { p_id: id });
+  const { error } = await supabase.rpc("portal_recusar_proposta", { p_id: id, p_motivo: texto });
+  if (error) return { erro: erroAmigavel(error.message) };
+  const p = prop as { numero: string; titulo: string } | null;
+  await notificarPropostaRecusada({
+    numero: p?.numero ?? "",
+    titulo: p?.titulo ?? "",
+    empresa: sessao.cliente.empresa,
+    contacto: sessao.contacto.nome,
+    email: sessao.contacto.email,
+    motivo: texto,
+  });
+  revalidatePath("/area-cliente", "layout");
+  redirect(`/area-cliente/propostas/${id}?recusada=1`);
+}
+
+/* ---------------------------------------------------------------- mensagens à equipa */
+export type MensagemState = { erro?: string; ok?: string };
+
+const TIPOS_MENSAGEM = ["alteracao_proposta", "problema_encomenda", "convidar_colega", "alterar_dados"] as const;
+const ASSUNTO_MENSAGEM: Record<(typeof TIPOS_MENSAGEM)[number], string> = {
+  alteracao_proposta: "Pedido de alteração a uma proposta",
+  problema_encomenda: "Problema numa encomenda",
+  convidar_colega: "Pedido de acesso para um colega",
+  alterar_dados: "Pedido de alteração de dados",
+};
+
+const mensagemSchema = z.object({
+  tipo: z.enum(TIPOS_MENSAGEM),
+  ref: z.string().uuid().optional(),
+  mensagem: z.string().trim().min(1, "Escreva a mensagem.").max(2000),
+});
+
+/** Pedido do cliente à equipa (alteração à proposta, problema na encomenda, convidar colega, alterar dados): vira tarefa no ERP. */
+export async function enviarMensagem(_prev: MensagemState, fd: FormData): Promise<MensagemState> {
+  const sessao = await sessaoPortal();
+  if (!sessao) redirect("/area-cliente/entrar");
+  const parsed = mensagemSchema.safeParse({ tipo: fd.get("tipo"), ref: fd.get("ref") || undefined, mensagem: fd.get("mensagem") });
+  if (!parsed.success) return { erro: parsed.error.issues[0]?.message ?? "Verifique os dados." };
+  const { tipo, ref, mensagem } = parsed.data;
+  // Demonstração: não grava nada no ERP nem envia avisos.
+  if (await emDemo()) return { ok: "Mensagem enviada (demonstração: nada foi gravado)." };
+
+  const supabase = await portalClient();
+  const { error } = await supabase.rpc("portal_enviar_mensagem", { p_tipo: tipo, p_mensagem: mensagem, p_ref: ref ?? null });
+  if (error) return { erro: erroAmigavel(error.message) };
+  await notificarNovoLead({
+    nome: sessao.contacto.nome,
+    email: sessao.contacto.email,
+    empresa: sessao.cliente.empresa,
+    telefone: sessao.contacto.telefone ?? undefined,
+    assunto: ASSUNTO_MENSAGEM[tipo],
+    mensagem,
+    origem: "portal",
+  });
+  revalidatePath("/area-cliente", "layout");
+  return { ok: "Mensagem enviada. A nossa equipa responde em breve." };
 }

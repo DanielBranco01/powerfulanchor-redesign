@@ -6,6 +6,10 @@ import type { Conta, Encomenda, EncomendaResumo, Linha, Painel, Pedido, Proposta
  * empresa fictícia. Não toca no ERP: as leituras vêm daqui e as ações (pedir, aceitar, repetir) não gravam nada.
  * As datas são relativas a hoje, para a demonstração parecer sempre atual.
  */
+/** A demonstração (empresa e valores fictícios) está ligada em desenvolvimento; em produção só com PORTAL_DEMO=on.
+ *  Como mostra preços de exemplo, não deve estar à vista de visitantes quando os preços só existem em propostas. */
+export const DEMO_ATIVA = process.env.PORTAL_DEMO === "on" || process.env.NODE_ENV !== "production";
+
 export const DEMO_COOKIE = "pa_demo";
 
 const dia = (n: number) => {
@@ -48,6 +52,7 @@ function dados() {
   const lFibra = [
     linha("Cabo de instalação interior/exterior 50/125 µ OM4, 8 fibras, LSZH", "DK-35081/4-U", "dk-35081-4-u", 300, 2.95, "metros"),
   ];
+  const lPatch = [linha("Patch Panel modular de alta densidade, blindado", "DN-91422", "dn-91422", 4, 54.9)];
   const lAuditorio = [linha("Conjunto extensor HDMI, Full HD, 50 m", "DS-55100-1", "ds-55100-1", 6, 74.9)];
 
   const propostas: Proposta[] = [
@@ -56,6 +61,8 @@ function dados() {
       numero: "PA-PR-2026-0142",
       titulo: "Rede estruturada — escritório piso 2",
       descricao: "Proposta para a rede do novo escritório: cablagem Cat 6A, dois switches PoE para os pontos de acesso e armário de 42U com réguas de alimentação.",
+      prazo_entrega: "5 a 7 dias úteis após a confirmação",
+      condicoes: "Portes incluídos para Portugal continental.\nPagamento a 30 dias da data da encomenda.",
       partilhada_em: dia(-3),
       valida_ate: dia(27),
       estado: "aguarda_resposta",
@@ -94,6 +101,24 @@ function dados() {
       referencia_cliente: null,
       linhas: lHdmiSala,
       total: soma(lHdmiSala),
+      encomenda: null,
+    },
+    {
+      id: id(104),
+      numero: "PA-PR-2026-0109",
+      titulo: "Patch panels — sala técnica B",
+      descricao: null,
+      partilhada_em: dia(-21),
+      valida_ate: dia(9),
+      estado: "recusada",
+      aceite_em: null,
+      aceite_por: null,
+      referencia_cliente: null,
+      recusada_em: dia(-16),
+      recusada_por: DEMO_SESSAO.contacto.nome,
+      motivo_recusa: "Prazo de entrega — a obra foi antecipada",
+      linhas: lPatch,
+      total: soma(lPatch),
       encomenda: null,
     },
   ];

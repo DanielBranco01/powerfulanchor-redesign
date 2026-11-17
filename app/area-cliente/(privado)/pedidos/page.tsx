@@ -47,7 +47,7 @@ export default async function PedidosPage({ searchParams }: { searchParams: Prom
                   {p.itens.map((i, n) => (
                     <li key={`${i.ref}-${n}`}>
                       <span className="pt-qty">{i.qty}×</span>
-                      {i.slug ? <Link href={`/produtos?produto=${encodeURIComponent(i.slug)}`}>{i.nome ?? i.ref}</Link> : <span>{i.nome ?? i.ref}</span>}
+                      {i.slug ? <Link href={`/produtos/todos/${encodeURIComponent(i.slug)}`}>{i.nome ?? i.ref}</Link> : <span>{i.nome ?? i.ref}</span>}
                       <span className="pt-ref-sm">{i.ref}</span>
                     </li>
                   ))}

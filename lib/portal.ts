@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-import { DEMO_COOKIE, DEMO_SESSAO, lerDemo } from "./portal-demo";
+import { DEMO_ATIVA, DEMO_COOKIE, DEMO_SESSAO, lerDemo } from "./portal-demo";
 
 /**
  * Área de cliente: sessão Supabase Auth do projeto do ERP, guardada em cookies (httpOnly via @supabase/ssr).
@@ -16,7 +16,7 @@ const KEY = process.env.ERP_SUPABASE_PUBLISHABLE_KEY;
 export const portalConfigurado = () => Boolean(URL && KEY);
 
 /** Modo demonstração (cookie posto por /area-cliente/demo): dados fictícios, sem ERP. Ver lib/portal-demo.ts. */
-export const emDemo = cache(async () => (await cookies()).get(DEMO_COOKIE)?.value === "1");
+export const emDemo = cache(async () => DEMO_ATIVA && (await cookies()).get(DEMO_COOKIE)?.value === "1");
 
 export async function portalClient() {
   if (!URL || !KEY) throw new Error("ERP_SUPABASE_URL / ERP_SUPABASE_PUBLISHABLE_KEY em falta.");
@@ -94,19 +94,26 @@ export type PropostaResumo = {
   encomenda_id: string | null;
   encomenda_ref: string | null;
 };
-export type EstadoProposta = "aguarda_resposta" | "aceite" | "adjudicada" | "expirada" | "encerrada";
+export type EstadoProposta = "aguarda_resposta" | "aceite" | "adjudicada" | "expirada" | "encerrada" | "recusada";
 export type Linha = { nome: string; descricao: string | null; ref: string | null; slug: string | null; quantidade: number; preco_unit: number; total: number };
 export type Proposta = {
   id: string;
   numero: string;
   titulo: string;
   descricao: string | null;
+  /** Prazo e condições da proposta (ERP com a migração 0026; antes disso não vêm). */
+  prazo_entrega?: string | null;
+  condicoes?: string | null;
   partilhada_em: string;
   valida_ate: string | null;
   estado: EstadoProposta;
   aceite_em: string | null;
   aceite_por: string | null;
   referencia_cliente: string | null;
+  /** Recusa na área de cliente (ERP com a migração 0023; antes disso não vêm). */
+  recusada_em?: string | null;
+  recusada_por?: string | null;
+  motivo_recusa?: string | null;
   linhas: Linha[];
   total: number;
   encomenda: { id: string; ref: string } | null;

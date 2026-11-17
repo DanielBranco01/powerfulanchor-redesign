@@ -20,7 +20,7 @@ export default function PatchPanel() {
         {NAV_CATEGORIES.map((cat, g) => (
           <Link
             key={cat.slug}
-            href={`/produtos?cat=${encodeURIComponent(cat.key)}`}
+            href={`/produtos/${cat.slug}`}
             className="pgroup"
           >
             <span className="pg-ports" aria-hidden="true">

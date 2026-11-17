@@ -4,13 +4,15 @@ import NovoPedidoForm from "@/components/portal/NovoPedidoForm";
 
 export const metadata = { title: "Novo pedido" };
 
-export default function NovoPedidoPage() {
+export default async function NovoPedidoPage({ searchParams }: { searchParams: Promise<{ proposta?: string }> }) {
+  const { proposta } = await searchParams;
+  const numero = proposta && /^[A-Za-z0-9-]{3,40}$/.test(proposta) ? proposta : undefined;
   return (
     <>
       <Voltar href="/area-cliente/pedidos">Pedidos</Voltar>
       <PageTitle code="01" eyebrow="Novo pedido" title="Pedir orçamento" />
       <div className="pt-two pt-two-form">
-        <NovoPedidoForm />
+        <NovoPedidoForm assuntoInicial={numero ? `Atualizar a proposta ${numero}` : undefined} />
         <aside className="pt-aside">
           <h2 className="pt-h2">Sabe as referências?</h2>
           <p>

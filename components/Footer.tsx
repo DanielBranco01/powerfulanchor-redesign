@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { hrefCategoria } from "@/lib/catalogue";
 
 export default function Footer() {
   const year = new Date().getFullYear();
-  const catHref = (cat: string) => `/produtos?cat=${encodeURIComponent(cat)}`;
+  const catHref = (cat: string) => hrefCategoria(cat);
 
   return (
     <footer>

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { ProductSummary } from "@/lib/catalogue";
-import { useCatalogueData } from "@/lib/catalogue-store";
 import { useBasket } from "../BasketProvider";
 import { quemSouPortal, sendQuoteRequest } from "@/app/actions";
 
@@ -17,18 +17,20 @@ export default function QuoteForm({
   product?: ProductSummary;
 }) {
   const { items, clear } = useBasket();
-  const { getProduct } = useCatalogueData();
+  const pathname = usePathname() ?? "";
   const [ok, setOk] = useState(false);
   const [saved, setSaved] = useState(false);
   const [noPortal, setNoPortal] = useState(false);
   const [eu, setEu] = useState<Awaited<ReturnType<typeof quemSouPortal>>>(null);
+  const [verificado, setVerificado] = useState(false);
 
   // Com sessão na área de cliente, os dados de contacto vêm preenchidos e o pedido fica associado à empresa.
   useEffect(() => {
     let vivo = true;
     quemSouPortal()
       .then((r) => vivo && setEu(r))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => vivo && setVerificado(true));
     return () => {
       vivo = false;
     };
@@ -64,13 +66,7 @@ export default function QuoteForm({
     let subject: string;
     let body: string;
     if (mode === "basket") {
-      const lines = items
-        .map((b) => {
-          const p = getProduct(b.id);
-          return p ? `- ${p.name} (Ref. ${p.ref}) × ${b.qty}` : "";
-        })
-        .filter(Boolean)
-        .join("\n");
+      const lines = items.map((b) => `- ${b.name} (Ref. ${b.ref}) × ${b.qty}`).join("\n");
       subject = `Pedido de orçamento — ${items.length} produto(s)`;
       body = `Pedido de orçamento (vários produtos)\n\nProdutos:\n${lines}${contact}`;
     } else {
@@ -83,10 +79,7 @@ export default function QuoteForm({
     // 1) Tenta gravar o pedido no ERP; 2) se não for possível, abre o cliente de e-mail.
     const itens =
       mode === "basket"
-        ? items.flatMap((b) => {
-            const p = getProduct(b.id);
-            return p ? [{ ref: p.ref, qty: b.qty }] : [];
-          })
+        ? items.map((b) => ({ ref: b.ref, qty: b.qty }))
         : product
           ? [{ ref: product.ref, qty: Math.max(1, Number(get("qtd")) || 1) }]
           : [];
@@ -121,6 +114,23 @@ export default function QuoteForm({
   const clearInvalid = (field: "nome" | "email") =>
     setInvalid((v) => ({ ...v, [field]: false }));
 
+  // Cotações só para clientes convidados: sem sessão mostra-se o acesso em vez do formulário.
+  if (verificado && !eu) {
+    return (
+      <div className="qform">
+        <p className="qportal">
+          Os pedidos de cotação são feitos na <b>área de cliente</b>, com o acesso que lhe enviámos por convite.
+        </p>
+        <Link href={pathname.startsWith("/produtos") ? `/area-cliente/entrar?next=${encodeURIComponent(pathname)}` : "/area-cliente/entrar"} className="btn-primary">
+          Entrar na área de cliente →
+        </Link>
+        <p className="qlegal">
+          Ainda não tem acesso? Escreva para <a href={`mailto:${CONTACT_EMAIL}?subject=Pedido%20de%20acesso`}>{CONTACT_EMAIL}</a>.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <form className="qform" onSubmit={onSubmit} noValidate key={eu ? "portal" : "anon"}>
       {eu && (
@@ -131,18 +141,14 @@ export default function QuoteForm({
       )}
       {mode === "basket" && (
         <ul className="qitems">
-          {items.map((b) => {
-            const p = getProduct(b.id);
-            if (!p) return null;
-            return (
-              <li key={b.id}>
-                <span>
-                  {p.name} <small>({p.ref})</small>
-                </span>
-                <b>×{b.qty}</b>
-              </li>
-            );
-          })}
+          {items.map((b) => (
+            <li key={b.id}>
+              <span>
+                {b.name} <small>({b.ref})</small>
+              </span>
+              <b>×{b.qty}</b>
+            </li>
+          ))}
         </ul>
       )}
 

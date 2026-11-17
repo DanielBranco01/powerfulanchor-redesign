@@ -67,3 +67,37 @@ export async function getCatalogueProduct(id: string): Promise<Product | null> {
   const resumo = (fallbackIndex as ProductSummary[]).find((x) => x.id === id);
   return resumo ? { ...resumo, specs: await specsDeReserva(id) } : null;
 }
+
+/**
+ * Pesquisa do site pela função pública do ERP `catalogo_pesquisar` (a pesquisa inteligente: sinónimos PT/EN, medidas,
+ * referência exata). Devolve os artigos por ordem de relevância, ou `null` se o ERP não estiver disponível ou a função
+ * ainda não existir (migração 0029): nesse caso quem chama usa a pesquisa simples sobre o índice.
+ */
+export async function searchCatalogue(q: string): Promise<ProductSummary[] | null> {
+  const termo = q.trim().slice(0, 80);
+  if (!termo || !URL || !KEY) return null;
+  try {
+    const res = await fetch(`${URL}/rest/v1/rpc/catalogo_pesquisar`, {
+      method: "POST",
+      headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_q: termo, p_limit: 500 }),
+      next: { revalidate: 300, tags: ["catalogo"] },
+    });
+    if (!res.ok) return null;
+    const linhas = (await res.json()) as { id: string; ref: string; name: string; brand: string | null; cat: string | null; subcat: string | null; desc: string | null; img: string | null; stock: string | null }[];
+    return linhas.map((p) => ({
+      id: p.id,
+      ref: p.ref,
+      name: p.name,
+      brand: p.brand ?? "",
+      cat: p.cat ?? "",
+      subcat: p.subcat ?? "",
+      desc: p.desc ?? "",
+      img: p.img,
+      stock: "order" as const,
+    }));
+  } catch (e) {
+    console.error("[catalogo] pesquisa indisponível; a usar a pesquisa simples.", e instanceof Error ? e.name : "erro");
+    return null;
+  }
+}

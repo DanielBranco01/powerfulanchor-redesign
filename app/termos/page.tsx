@@ -32,7 +32,7 @@ export default function TermosPage() {
             próprio email.
           </li>
           <li>
-            A entrada faz-se com um código de uso único enviado para esse email. O utilizador é responsável por manter a segurança da sua
+            A entrada faz-se com um link (ou código) de uso único enviado para esse email. O utilizador é responsável por manter a segurança da sua
             conta de email e por não partilhar os códigos recebidos.
           </li>
           <li>
@@ -81,6 +81,11 @@ export default function TermosPage() {
             A encomenda fica sujeita à confirmação de disponibilidade de stock pela {EMPRESA.nome}. Se algum artigo não estiver disponível
             nas condições propostas, contactamos o cliente antes de avançar, e o cliente pode aceitar a alternativa ou cancelar essa parte
             sem custos.
+          </li>
+          <li>
+            Muitos artigos do catálogo são fornecidos sob encomenda ao fabricante ou distribuidor: o prazo de entrega indicado na proposta
+            conta a partir da confirmação da encomenda, e o preço e a disponibilidade mostrados no site são sempre «sob consulta» até
+            existir uma proposta.
           </li>
           <li>
             As condições de pagamento e de entrega são as indicadas na proposta ou, na falta delas, as acordadas com o cliente.

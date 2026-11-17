@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { novoPedido, type AcaoState } from "@/app/area-cliente/actions";
 
-export default function NovoPedidoForm() {
+export default function NovoPedidoForm({ assuntoInicial }: { assuntoInicial?: string }) {
   const [state, action, pending] = useActionState<AcaoState, FormData>(novoPedido, {});
   return (
     <div className="form">
@@ -14,7 +14,7 @@ export default function NovoPedidoForm() {
       <form action={action}>
         <div className="field">
           <label htmlFor="assunto">Assunto</label>
-          <input id="assunto" name="assunto" type="text" maxLength={200} placeholder="Ex.: Cablagem do novo armazém" />
+          <input id="assunto" name="assunto" type="text" maxLength={200} placeholder="Ex.: Cablagem do novo armazém" defaultValue={assuntoInicial} />
         </div>
         <div className="field">
           <label htmlFor="mensagem">O que precisa</label>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { lerPortal, sessaoPortal, type Painel } from "@/lib/portal";
+import MensagemForm from "@/components/portal/MensagemForm";
 import { ESTADO_ENCOMENDA, ESTADO_PEDIDO, ESTADO_PROPOSTA, ErroLeitura, Estado, PageTitle, data, eur } from "@/components/portal/ui";
 
 export const metadata = { title: "Resumo" };
@@ -122,9 +123,20 @@ export default async function PainelPage() {
             <div><dt>Contacto</dt><dd>{sessao.contacto.nome}{sessao.contacto.cargo ? ` · ${sessao.contacto.cargo}` : ""}</dd></div>
             <div><dt>Email</dt><dd>{sessao.contacto.email}</dd></div>
           </dl>
-          <p className="pt-muted">
-            Algum dado desatualizado? Escreva-nos para <a href="mailto:sales@powerfulanchor.pt">sales@powerfulanchor.pt</a>.
-          </p>
+          <MensagemForm
+            tipo="alterar_dados"
+            voltar="/area-cliente"
+            titulo="Algum dado desatualizado?"
+            placeholder="Indique o que deve ser corrigido (morada, NIF, contacto…)."
+            botao="Pedir alteração"
+          />
+          <MensagemForm
+            tipo="convidar_colega"
+            voltar="/area-cliente"
+            titulo="Dar acesso a um colega"
+            placeholder="Nome e email do colega que deve ter acesso à área de cliente."
+            botao="Pedir acesso"
+          />
         </section>
       )}
     </>

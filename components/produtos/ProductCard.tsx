@@ -1,70 +1,29 @@
-"use client";
-
-import { useState } from "react";
-import { catIcon, type ProductSummary } from "@/lib/catalogue";
-import { useCatalogue } from "./context";
-import { useBasket } from "../BasketProvider";
-import SvgIcon from "./SvgIcon";
-import StockBadge from "./StockBadge";
-
-function CardImage({ product }: { product: ProductSummary }) {
-  const [status, setStatus] = useState<"loading" | "loaded" | "error">(
-    product.img ? "loading" : "error"
-  );
-
-  return (
-    <div className="imgwrap">
-      {status !== "loaded" && (
-        <div className="ph">
-          <SvgIcon inner={catIcon(product.cat)} strokeWidth={1.5} />
-          <small>imagem do produto</small>
-        </div>
-      )}
-      {product.img && status !== "error" && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={product.img}
-          alt={product.name}
-          loading="lazy"
-          onLoad={() => setStatus("loaded")}
-          onError={() => setStatus("error")}
-        />
-      )}
-    </div>
-  );
-}
+import Link from "next/link";
+import { hrefProduto, type ProductSummary } from "@/lib/catalogue";
+import ProductImage from "./ProductImage";
+import AddToQuote from "./AddToQuote";
 
 export default function ProductCard({ product }: { product: ProductSummary }) {
-  const { showDetail } = useCatalogue();
-  const { add, toast } = useBasket();
-
+  const href = hrefProduto(product);
   return (
-    <article className="pcard" onClick={() => showDetail(product.id)}>
-      <CardImage product={product} />
+    <article className="pcard">
+      <Link href={href} className="imgwrap" aria-label={product.name}>
+        <ProductImage img={product.img} cat={product.cat} name={product.name} />
+      </Link>
       <div className="body">
         <div className="cat">{product.cat}</div>
-        <h3>{product.name}</h3>
+        <h3>
+          <Link href={href}>{product.name}</Link>
+        </h3>
         <div className="ref">
           Ref. {product.ref} · {product.brand}
         </div>
-        <div className="cardstock">
-          <StockBadge stock={product.stock} />
-        </div>
-        <p className="desc">{product.desc.split(". ")[0]}.</p>
+        <p className="desc">{product.desc.split("\n")[0].replace(/^[•·\s]+/, "")}</p>
         <div className="cardfoot">
-          <span className="details">
+          <Link href={href} className="details">
             Ver detalhes <span className="arrow">→</span>
-          </span>
-          <button
-            className="addbtn"
-            onClick={(e) => {
-              e.stopPropagation();
-              add(product.id);
-              toast(`${product.name} adicionado ao orçamento`);
-            }}
-          >
-            + Orçamento
-          </button>
+          </Link>
+          <AddToQuote product={product} variant="card" />
         </div>
       </div>
     </article>

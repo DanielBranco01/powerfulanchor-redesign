@@ -102,56 +102,34 @@ export async function quemSouPortal(): Promise<{ nome: string; email: string; em
 
 /** Pedido de orçamento (cesto ou produto único). Devolve saved=false se o ERP não aceitou: o cliente cai para mailto.
  *  Com sessão na área de cliente, o pedido fica ligado à empresa e ao contacto (portal=true). */
-export async function sendQuoteRequest(input: z.input<typeof quoteSchema>): Promise<{ saved: boolean; portal?: boolean }> {
+export async function sendQuoteRequest(input: z.input<typeof quoteSchema>): Promise<{ saved: boolean; portal?: boolean; semSessao?: boolean }> {
   const parsed = quoteSchema.safeParse(input);
   if (!parsed.success) return { saved: false };
   const q = parsed.data;
   if (q.website) return { saved: true }; // bot
 
+  // Cotações só para clientes convidados (v1): sem sessão na área de cliente não se grava nada.
   const sessao = await sessaoPortal();
-  if (sessao) {
-    const supabase = await portalClient();
-    const { error } = await supabase.rpc("portal_pedir_orcamento", {
-      p_assunto: "Pedido de orçamento",
-      p_mensagem: q.mensagem || null,
-      p_itens: q.itens.length ? q.itens : null,
-    });
-    if (!error) {
-      await notificarNovoLead({
-        nome: sessao.contacto.nome,
-        email: sessao.contacto.email,
-        empresa: sessao.cliente.empresa,
-        telefone: sessao.contacto.telefone ?? undefined,
-        mensagem: q.mensagem,
-        assunto: "Pedido de orçamento",
-        itens: q.itens,
-        origem: "portal",
-      });
-      return { saved: true, portal: true };
-    }
-    console.error("[portal] portal_pedir_orcamento falhou; segue como pedido do site:", error.code);
-  }
-  const saved = await criarLeadNoErp({
-    nome: q.nome,
-    email: q.email,
-    empresa: q.empresa,
-    telefone: q.telefone,
-    mensagem: q.mensagem,
-    assunto: "Pedido de orçamento",
-    itens: q.itens,
-    origem: "site-orcamento",
+  if (!sessao) return { saved: false, semSessao: true };
+  const supabase = await portalClient();
+  const { error } = await supabase.rpc("portal_pedir_orcamento", {
+    p_assunto: "Pedido de orçamento",
+    p_mensagem: q.mensagem || null,
+    p_itens: q.itens.length ? q.itens : null,
   });
-  if (saved) {
+  if (!error) {
     await notificarNovoLead({
-      nome: q.nome,
-      email: q.email,
-      empresa: q.empresa,
-      telefone: q.telefone,
+      nome: sessao.contacto.nome,
+      email: sessao.contacto.email,
+      empresa: sessao.cliente.empresa,
+      telefone: sessao.contacto.telefone ?? undefined,
       mensagem: q.mensagem,
       assunto: "Pedido de orçamento",
       itens: q.itens,
-      origem: "site-orcamento",
+      origem: "portal",
     });
+    return { saved: true, portal: true };
   }
-  return { saved };
+  console.error("[portal] portal_pedir_orcamento falhou:", error.code);
+  return { saved: false };
 }

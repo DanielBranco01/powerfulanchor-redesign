@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { hrefCategoria } from "@/lib/catalogue";
 import Reveal from "./ui/Reveal";
 import SectionHead from "./ui/SectionHead";
 
@@ -14,7 +15,7 @@ const SERVICES: {
     title: "Redes de Dados",
     description:
       "Cablagem estruturada, conectividade e componentes para infraestruturas de rede fiáveis e escaláveis.",
-    href: `/produtos?cat=${encodeURIComponent("Redes de Dados")}`,
+    href: hrefCategoria("Redes de Dados"),
     route: true,
   },
   {
@@ -22,7 +23,7 @@ const SERVICES: {
     title: "Áudio e Vídeo",
     description:
       "Equipamentos e soluções de distribuição de áudio e vídeo para ambientes profissionais e comerciais.",
-    href: `/produtos?cat=${encodeURIComponent("Áudio e Vídeo")}`,
+    href: hrefCategoria("Áudio e Vídeo"),
     route: true,
   },
   {
@@ -30,7 +31,7 @@ const SERVICES: {
     title: "Sistemas de RF",
     description:
       "Componentes e sistemas de radiofrequência para transmissão, cobertura e comunicações sem fios.",
-    href: `/produtos?cat=${encodeURIComponent("Sistemas de RF")}`,
+    href: hrefCategoria("Sistemas de RF"),
     route: true,
   },
   {

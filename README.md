@@ -1,3 +1,5 @@
+> **Nota (nov. 2026):** esta pasta é a **loja** (cópia do redesign). O catálogo passou a rotas no servidor, sem preços; ver [`LOJA.md`](LOJA.md). As secções «Módulo de catálogo» e «Estrutura» abaixo descrevem a versão anterior (SPA em `components/produtos/CatalogueApp.tsx`, já removida).
+
 # Powerful Anchor — Next.js (redesign v2)
 
 > Cópia de teste de `../powerful-anchor-next` com uma nova identidade visual ("ficha técnica"):

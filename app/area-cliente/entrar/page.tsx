@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { sessaoPortal } from "@/lib/portal";
 import EntrarForm from "@/components/portal/EntrarForm";
+import { DEMO_ATIVA } from "@/lib/portal-demo";
+import { destinoSeguro } from "@/lib/portal-destino";
 
 export const metadata = { title: "Entrar" };
 
@@ -34,13 +36,20 @@ export default async function EntrarPage({ searchParams }: { searchParams: Promi
             <li><span>03</span> Siga a preparação e a entrega das encomendas</li>
             <li><span>04</span> Veja os valores em aberto e os vencimentos</li>
           </ul>
-          {/* <a> e não <Link>: o destino é uma rota que grava um cookie, não deve ser pré-carregada. */}
-          <a href="/area-cliente/demo" className="pt-demo-cta">
-            <span>Ainda não é cliente?</span>
-            <b>Ver a área de cliente com dados de exemplo →</b>
-          </a>
+          {DEMO_ATIVA ? (
+            // <a> e não <Link>: o destino é uma rota que grava um cookie, não deve ser pré-carregada.
+            <a href="/area-cliente/demo" className="pt-demo-cta">
+              <span>Ainda não é cliente?</span>
+              <b>Ver a área de cliente com dados de exemplo →</b>
+            </a>
+          ) : (
+            <p className="pt-acesso">
+              O acesso é <b>por convite</b> da nossa equipa. Ainda não o tem?{" "}
+              <a href="mailto:sales@powerfulanchor.pt?subject=Pedido%20de%20acesso%20%C3%A0%20%C3%A1rea%20de%20cliente">Peça-o por email</a>.
+            </p>
+          )}
         </div>
-        <EntrarForm next={next} erroInicial={erro ? ERROS[erro] : undefined} />
+        <EntrarForm next={next ? destinoSeguro(next) : undefined} erroInicial={erro ? ERROS[erro] : undefined} />
       </div>
     </div>
   );
