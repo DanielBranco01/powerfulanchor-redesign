@@ -49,8 +49,9 @@ O `.env.local` desta cópia aponta para o **ERP de produção**: cuidado ao test
 A loja **não criou projetos novos**: foi para o repositório e para o site de teste que já existiam (`powerfulanchor-redesign`).
 - **GitHub:** `DanielBranco01/powerfulanchor-redesign`, ramo `main` (1 commit por cima do histórico, `c6bcc81` → `99af470`).
 - **Ponto de regresso:** etiqueta **`pre-loja-v1`** (o redesign + área de cliente tal como estavam, `c6bcc81`). O site de produção antigo (`powerfulanchor`) **não foi tocado**.
-- **Netlify:** site `powerfulanchor-redesign` (deploy por upload; enviar para o GitHub não publica). Antes de publicar é preciso definir as variáveis no Netlify (o site não tinha nenhuma): `ERP_SUPABASE_URL`, `ERP_SUPABASE_PUBLISHABLE_KEY` (os mesmos valores públicos do ERP), `SITE_URL` e `PORTAL_SITE_URL` (`https://powerfulanchor-redesign.netlify.app` até haver domínio). Sem elas o site usa o catálogo de reserva e a área de cliente fica indisponível.
-- **Supabase:** em *Authentication → URL Configuration → Redirect URLs* acrescentar `https://powerfulanchor-redesign.netlify.app/**`; sem isso o link de entrada vai para o ERP.
+- **Netlify:** site `powerfulanchor-redesign` (ligado ao GitHub, **publicação automática do `main`**: cada envio gasta um deploy; usar `[skip ci]` na mensagem em commits só de documentação). **Publicado a 18/11/2026** (deploy `6afd8fab…`, `main@0250b2f`) já com as variáveis. Variáveis definidas no Netlify (o site não tinha nenhuma): `ERP_SUPABASE_URL`, `ERP_SUPABASE_PUBLISHABLE_KEY` (valores públicos do ERP), `SITE_URL` e `PORTAL_SITE_URL` (`https://powerfulanchor-redesign.netlify.app` até haver domínio). Alterar variáveis exige novo deploy.
+- **Supabase:** `https://powerfulanchor-redesign.netlify.app/**` **já está** em *Authentication → URL Configuration → Redirect URLs* (acrescentado a 18/11/2026). Quando houver domínio próprio, acrescentar também o novo endereço e atualizar `SITE_URL` e `PORTAL_SITE_URL`.
+- Verificado ao vivo: ficha sem preços, pesquisa inteligente (323 resultados para «armário 19 polegadas 12u»), entrada «por convite» sem demonstração, sitemap com 2 726 endereços.
 - Esta pasta (`Website/powerful-anchor-loja`) é agora o clone de trabalho do repositório; `powerful-anchor-redesign` fica como arquivo.
 
 ## Estado
